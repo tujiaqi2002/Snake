@@ -4,6 +4,7 @@ var rows = 20;
 var cols = 20;
 var board;
 var context;
+var score;
 
 //snake head location
 var snakeHeadX = blockSize * 5;
@@ -12,21 +13,31 @@ var snakeHeadY = blockSize * 5;
 var velocityX = 0;
 var velocityY = 0;
 
+var numEatenFruit = 0;
 //snake body
 var snakeBody = [];
 
 var gameOver = false;
+
+// var updateTime = 200;
+
 window.onload = function () {
+  snakeGame();
+};
+
+function snakeGame() {
   board = document.getElementById("board");
   board.height = rows * blockSize;
   board.width = cols * blockSize;
   context = board.getContext("2d");
-
   placeFood();
   document.addEventListener("keyup", changeDirection);
-  // update();
-  setInterval(update, 1000 / 5); //100ms
-};
+
+  // setTimeout(update, updateTime);
+  setInterval(update, 200); //200ms
+
+  console.log(numEatenFruit);
+}
 
 function update() {
   if (gameOver) {
@@ -40,6 +51,11 @@ function update() {
   if (snakeHeadX == foodX && snakeHeadY == foodY) {
     snakeBody.push([foodX, foodY]);
     placeFood();
+    numEatenFruit++;
+    score = document.getElementById("score");
+    score.innerText = "Score:" + numEatenFruit;
+    // updateTime = 1000 / (200 - numEatenFruit);
+    // setTimeout(update, updateTime);
   }
 
   //update the body
@@ -55,14 +71,20 @@ function update() {
   context.fillRect(foodX, foodY, blockSize, blockSize);
 
   //draw snake head
-  context.fillStyle = "lime";
+  context.fillStyle = "#f0f0f0";
   snakeHeadX += velocityX * blockSize;
   snakeHeadY += velocityY * blockSize;
-  context.fillRect(snakeHeadX, snakeHeadY, blockSize, blockSize);
+  context.fillRect(snakeHeadX, snakeHeadY, blockSize - 1, blockSize - 1);
 
   //draw the snakebody
+  context.fillStyle = "#999999";
   for (let i = 0; i < snakeBody.length; i++) {
-    context.fillRect(snakeBody[i][0], snakeBody[i][1], blockSize, blockSize);
+    context.fillRect(
+      snakeBody[i][0],
+      snakeBody[i][1],
+      blockSize - 1,
+      blockSize - 1
+    );
   }
 
   //game over conditions
