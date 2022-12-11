@@ -3,7 +3,6 @@ body {
     text-align: center;
     margin: auto;
     padding: 200px;
-
 }
 
 /* canvas {
@@ -14,3 +13,8 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     text-align: center;
 } */
+
+.scoreBar {
+    display: flex;
+    justify-content: space-evenly;
+}

@@ -5,10 +5,10 @@ var cols = 20;
 var board;
 var context;
 var score;
-
+var hightest;
 //snake head location
-var snakeHeadX = blockSize * 5;
-var snakeHeadY = blockSize * 5;
+var snakeHeadX = blockSize * Math.floor(cols * Math.random());
+var snakeHeadY = blockSize * Math.floor(cols * Math.random());
 
 var velocityX = 0;
 var velocityY = 0;
@@ -18,7 +18,7 @@ var numEatenFruit = 0;
 var snakeBody = [];
 
 var gameOver = false;
-
+var keyPressed;
 // var updateTime = 200;
 
 window.onload = function () {
@@ -30,30 +30,35 @@ function snakeGame() {
   board.height = rows * blockSize;
   board.width = cols * blockSize;
   context = board.getContext("2d");
+
+  document.getElementById("highestScore").innerText=localStorage.getItem("highestScore");
+  document.getElementById("currentScore").innerText=numEatenFruit;
+  
   placeFood();
-  document.addEventListener("keyup", changeDirection);
+  document.addEventListener("keydown", changeDirection);
 
   // setTimeout(update, updateTime);
-  setInterval(update, 200); //200ms
+  setInterval(update, 150); //200ms
 
   console.log(numEatenFruit);
 }
 
 function update() {
+  keyPressed = false;
   if (gameOver) {
     return;
   }
   //draw board
-  context.fillStyle = "black";
-  context.fillRect(0, 0, board.width, board.height);
+  context.fillStyle = "#f4d9b8";
+  context.fillRect(0, 0, board.width + 25, board.height + 25);
 
   //check if eat the food
   if (snakeHeadX == foodX && snakeHeadY == foodY) {
     snakeBody.push([foodX, foodY]);
     placeFood();
     numEatenFruit++;
-    score = document.getElementById("score");
-    score.innerText = "Score:" + numEatenFruit;
+    score = document.getElementById("currentScore");
+    score.innerText = numEatenFruit;
     // updateTime = 1000 / (200 - numEatenFruit);
     // setTimeout(update, updateTime);
   }
@@ -67,23 +72,23 @@ function update() {
   }
 
   //draw food
-  context.fillStyle = "red";
-  context.fillRect(foodX, foodY, blockSize, blockSize);
+  context.fillStyle = "#b53f45";
+  context.fillRect(foodX, foodY, blockSize - 1, blockSize - 1);
 
   //draw snake head
-  context.fillStyle = "#f0f0f0";
+  context.fillStyle = "#142847";
   snakeHeadX += velocityX * blockSize;
   snakeHeadY += velocityY * blockSize;
   context.fillRect(snakeHeadX, snakeHeadY, blockSize - 1, blockSize - 1);
 
   //draw the snakebody
-  context.fillStyle = "#999999";
+  context.fillStyle = "#848180";
   for (let i = 0; i < snakeBody.length; i++) {
     context.fillRect(
       snakeBody[i][0],
       snakeBody[i][1],
-      blockSize - 1,
-      blockSize - 1
+      blockSize - 2,
+      blockSize - 2
     );
   }
 
@@ -91,11 +96,12 @@ function update() {
   //check wall collision
   if (
     snakeHeadX < 0 ||
-    snakeHeadX > cols * blockSize ||
+    snakeHeadX > (cols - 1) * blockSize ||
     snakeHeadY < 0 ||
-    snakeHeadY > rows * blockSize
+    snakeHeadY > (rows - 1) * blockSize
   ) {
     gameOver = true;
+    storeHighestScore(numEatenFruit);
     alert("Game Over");
   }
 
@@ -103,28 +109,66 @@ function update() {
   for (let i = 0; i < snakeBody.length; i++) {
     if (snakeHeadX == snakeBody[i][0] && snakeHeadY == snakeBody[i][1]) {
       gameOver = true;
+      storeHighestScore(numEatenFruit);
       alert("Game Over");
     }
   }
 }
 
 function changeDirection(keyInterrupt) {
-  if (keyInterrupt.code == "ArrowUp" && velocityY != 1) {
+  if (
+    (keyInterrupt.code == "ArrowUp" || keyInterrupt.code == "KeyW") &&
+    velocityY != 1 &&
+    !keyPressed
+  ) {
     velocityX = 0;
     velocityY = -1;
-  } else if (keyInterrupt.code == "ArrowDown" && velocityY != -1) {
+    keyPressed = true;
+  } else if (
+    (keyInterrupt.code == "ArrowDown" || keyInterrupt.code == "KeyS") &&
+    velocityY != -1 &&
+    !keyPressed
+  ) {
     velocityX = 0;
     velocityY = 1;
-  } else if (keyInterrupt.code == "ArrowLeft" && velocityX != 1) {
+    keyPressed = true;
+  } else if (
+    (keyInterrupt.code == "ArrowLeft" || keyInterrupt.code == "KeyA") &&
+    velocityX != 1 &&
+    !keyPressed
+  ) {
     velocityX = -1;
     velocityY = 0;
-  } else if (keyInterrupt.code == "ArrowRight" && velocityX != -1) {
+    keyPressed = true;
+  } else if (
+    (keyInterrupt.code == "ArrowRight" || keyInterrupt.code == "KeyD") &&
+    velocityX != -1 &&
+    !keyPressed
+  ) {
     velocityX = 1;
     velocityY = 0;
+    keyPressed = true;
   }
 }
 
 function placeFood() {
-  foodX = Math.floor(cols * Math.random()) * blockSize;
-  foodY = Math.floor(rows * Math.random()) * blockSize;
+  let foodLocation;
+  do {
+    foodX = Math.floor(cols * Math.random()) * blockSize;
+    foodY = Math.floor(rows * Math.random()) * blockSize;
+    foodLocation = [foodX, foodY];
+  } while (snakeBody.includes(foodLocation));
+}
+
+function storeHighestScore(currentScore) {
+  if (localStorage.getItem("highestScore") == null) {
+    localStorage.setItem("highestScore", 0);
+  }
+
+  if (localStorage.getItem("highestScore") < currentScore) {
+    localStorage.setItem("highestScore", currentScore);
+  }
+
+  document.getElementById("highestScore").innerText =
+    localStorage.getItem("highestScore");
 }
