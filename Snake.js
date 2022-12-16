@@ -31,14 +31,15 @@ function snakeGame() {
   board.width = cols * blockSize;
   context = board.getContext("2d");
 
-  document.getElementById("highestScore").innerText=localStorage.getItem("highestScore");
-  document.getElementById("currentScore").innerText=numEatenFruit;
-  
+  document.getElementById("highestScore").innerText =
+    localStorage.getItem("highestScore");
+  document.getElementById("currentScore").innerText = numEatenFruit;
+
   placeFood();
   document.addEventListener("keydown", changeDirection);
 
   // setTimeout(update, updateTime);
-  setInterval(update, 150); //200ms
+  setInterval(update, 150); //150ms
 
   console.log(numEatenFruit);
 }
@@ -50,11 +51,12 @@ function update() {
   }
   //draw board
   context.fillStyle = "#f4d9b8";
-  context.fillRect(0, 0, board.width + 25, board.height + 25);
+  context.fillRect(0, 0, board.width, board.height);
 
   //check if eat the food
   if (snakeHeadX == foodX && snakeHeadY == foodY) {
     snakeBody.push([foodX, foodY]);
+    console.log(snakeBody);
     placeFood();
     numEatenFruit++;
     score = document.getElementById("currentScore");
@@ -152,12 +154,18 @@ function changeDirection(keyInterrupt) {
 }
 
 function placeFood() {
-  let foodLocation;
-  do {
-    foodX = Math.floor(cols * Math.random()) * blockSize;
-    foodY = Math.floor(rows * Math.random()) * blockSize;
-    foodLocation = [foodX, foodY];
-  } while (snakeBody.includes(foodLocation));
+  console.log(snakeBody);
+
+  foodX = Math.floor(cols * Math.random()) * blockSize;
+  foodY = Math.floor(rows * Math.random()) * blockSize;
+  for (let i = 0; i < snakeBody.length; i++) {
+    while (foodX == snakeBody[i][0] && foodY == snakeBody[i][1]) {
+      foodX = Math.floor(cols * Math.random()) * blockSize;
+      foodY = Math.floor(rows * Math.random()) * blockSize;
+      i = 0;
+    }
+  }
+  console.log([foodX, foodY]);
 }
 
 function storeHighestScore(currentScore) {
